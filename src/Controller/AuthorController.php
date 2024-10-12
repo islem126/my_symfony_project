@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Controller;
-
+use Symfony\Component\HttpFoundation\Request;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Author;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use App\Form\AuthorAddType;
 use App\Repository\AuthorRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -58,5 +61,53 @@ class AuthorController extends AbstractController
         $em->flush();
         return $this->redirectToRoute('app_affiche');    
     }
+
+    #[Route('/add', name: 'app_add')]
+    public function addAuthor(Request $request, ManagerRegistry $manager) {
+        $author = new Author();
+        $form = $this->createForm(AuthorAddType::class, $author);
+        $form->add('Ajouter',SubmitType::class);
+        $form->handleRequest($request);
     
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $manager->getManager();
+            $em->persist($author);
+            $em->flush();
+    
+            return $this->redirectToRoute('app_affiche');
+        }
+    
+        return $this->render('author/add.html.twig', ['form' => $form->createView()]);
+    }
+
+
+    #[Route('/author_edit/{id}',name:'author_edit' )]
+    public function updateAuthor($id,AuthorRepository $repo,Request $request,ManagerRegistry $manager){
+     $author=$repo->find($id);
+     $form=$this->createForm(AuthorAddType::class,$author);
+     $form->add('Update',SubmitType::class);
+     $form->handleRequest($request);
+     if($form->isSubmitted()){
+         $em=$manager->getManager();
+         $em->persist($author);
+         $em->flush();
+         return $this->redirectToRoute('app_affiche');
+     }
+     return $this->render('author/update.html.twig',['form'=>$form->createView()]);
+    }
+    
+
+
+    #[Route('/author_delete/{id}',name:'author_delete')]
+    public function deleteAuthor($id,AuthorRepository $repo,ManagerRegistry $manager){
+      $author=$repo->find($id);
+      $em=$manager->getManager();
+      $em->remove($author);
+      $em->flush();
+      return $this->redirectToRoute('app_affiche');
+    }
+
+
+
+
 }

@@ -12,6 +12,7 @@
             <tr>
                 <th>username</th>
                 <th>email</th>
+                <th>action</th>
             </tr>
         </thead>
         <tbody>
@@ -19,6 +20,10 @@
                 <tr>
                     <td>{{ author.username }}</td>
                     <td>{{ author.email }}</td>
+                    <td>
+                        <a href="{{ path('author_edit', {'id': author.id}) }}">Edit</a>
+                        <a href="{{ path('author_delete', {'id': author.id}) }}">Delete</a>
+                    </td>
 
                 </tr>
             {% endfor %}
