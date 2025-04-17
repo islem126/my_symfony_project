@@ -1,0 +1,574 @@
+{% extends 'back-office/base.html.twig' %}
+
+{% block title %}Dashboard - WamiaGo{% endblock %}
+
+{% block content %}
+  <!-- Content Header -->
+  <div class="app-content-header bg-light shadow-sm mb-4">
+    <div class="container-fluid py-3">
+      <div class="row">
+        <div class="col-sm-6">
+          <h3 class="mb-0">Dashboard</h3>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-end mb-0">
+            <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="app-content">
+    <div class="container-fluid">
+      <!-- Stats Row -->
+      <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3 mb-lg-0">
+          <div class="small-box bg-primary shadow-sm position-relative overflow-hidden stat-card">
+            <div class="inner p-3">
+              <h3>{{ stats.rideShares }}</h3>
+              <p class="mb-0">New Ride Shares</p>
+            </div>
+            <div class="icon position-absolute">
+              <img src="{{ asset('images/front/carpool.png') }}" alt="Ride Share Icon" class="img-fluid icon-image">
+            </div>
+            <a href="#" class="small-box-footer py-2 position-relative">
+              More info <i class="bi bi-arrow-right-circle"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3 mb-lg-0">
+          <div class="small-box bg-warning shadow-sm position-relative overflow-hidden stat-card">
+            <div class="inner p-3 text-white">
+              <h3>{{ stats.taxiBookings }}</h3>
+              <p class="mb-0">Taxi Bookings</p>
+            </div>
+            <div class="icon position-absolute">
+              <img src="{{ asset('images/front/taxi.png') }}" alt="Taxi Icon" class="img-fluid icon-image">
+            </div>
+            <a href="#" class="small-box-footer py-2 text-white position-relative">
+              More info <i class="bi bi-arrow-right-circle"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-6 mb-3 mb-md-0">
+          <div class="small-box bg-success shadow-sm position-relative overflow-hidden stat-card">
+            <div class="inner p-3">
+              <h3>{{ stats.bicycleRentals }}</h3>
+              <p class="mb-0">Bicycle Rentals</p>
+            </div>
+            <div class="icon position-absolute">
+              <img src="{{ asset('images/front/bicycle.png') }}" alt="Bike Icon" class="img-fluid icon-image">
+            </div>
+            <a href="#" class="small-box-footer py-2 position-relative">
+              More info <i class="bi bi-arrow-right-circle"></i>
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-6">
+          <div class="small-box bg-info shadow-sm position-relative overflow-hidden stat-card">
+            <div class="inner p-3">
+              <h3>{{ stats.relocationBookings }}</h3>
+              <p class="mb-0">Relocation Bookings</p>
+            </div>
+            <div class="icon position-absolute">
+              <img src="{{ asset('images/front/truck.png') }}" alt="Truck Icon" class="img-fluid icon-image">
+            </div>
+            <a href="#" class="small-box-footer py-2 position-relative">
+              More info <i class="bi bi-arrow-right-circle"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <style>
+        /* ========== CHART STYLES ========== */
+        /* Global chart variables */
+        :root {
+          --chart-grid-color: #e0e0e0;
+          --chart-text-color: #333;
+          --chart-tooltip-bg: #fff;
+          --chart-tooltip-border: #ddd;
+          --chart-series-colors: #0d6efd, #20c997, #ffc107, #dc3545;
+          --chart-axis-color: #777;
+          --chart-legend-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        body.dark-mode {
+          --chart-grid-color: #333;
+          --chart-text-color: #e0e0e0;
+          --chart-tooltip-bg: #252525;
+          --chart-tooltip-border: #444;
+          --chart-legend-bg: rgba(30, 30, 30, 0.85);
+        }
+
+        /* ApexCharts Global Styling */
+        .apexcharts-canvas {
+          background-color: transparent !important;
+        }
+
+        .apexcharts-text,
+        .apexcharts-title-text,
+        .apexcharts-legend-text,
+        .apexcharts-xaxis-label,
+        .apexcharts-yaxis-label {
+          fill: var(--chart-text-color) !important;
+        }
+
+        .apexcharts-grid line {
+          stroke: var(--chart-grid-color) !important;
+        }
+
+        .apexcharts-tooltip {
+          background-color: var(--chart-tooltip-bg) !important;
+          border: 1px solid var(--chart-tooltip-border) !important;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* ApexCharts Dark Mode Overrides */
+        body.dark-mode .apexcharts-canvas {
+          filter: brightness(1.05);
+        }
+
+        body.dark-mode .apexcharts-canvas .apexcharts-grid line {
+          stroke: var(--chart-grid-color) !important;
+        }
+
+        body.dark-mode .apexcharts-canvas .apexcharts-text,
+        body.dark-mode .apexcharts-canvas .apexcharts-title-text,
+        body.dark-mode .apexcharts-canvas .apexcharts-legend-text,
+        body.dark-mode .apexcharts-canvas .apexcharts-xaxis-label,
+        body.dark-mode .apexcharts-canvas .apexcharts-yaxis-label,
+        body.dark-mode .apexcharts-canvas .apexcharts-legend-text {
+          fill: var(--chart-text-color) !important;
+        }
+
+        body.dark-mode .apexcharts-canvas .apexcharts-tooltip {
+          background-color: var(--chart-tooltip-bg) !important;
+          border: 1px solid var(--chart-tooltip-border) !important;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        body.dark-mode .apexcharts-canvas .apexcharts-tooltip-title {
+          background-color: #333 !important;
+          border-bottom: 1px solid #444 !important;
+        }
+
+        body.dark-mode .apexcharts-canvas .apexcharts-tooltip-text-y-value,
+        body.dark-mode .apexcharts-canvas .apexcharts-tooltip-text-x-value,
+        body.dark-mode .apexcharts-canvas .apexcharts-tooltip-text-y-label,
+        body.dark-mode .apexcharts-canvas .apexcharts-tooltip-text-x-label {
+          color: var(--chart-text-color) !important;
+        }
+
+        body.dark-mode .apexcharts-canvas .apexcharts-menu {
+          background-color: #252525 !important;
+          border: 1px solid #444 !important;
+        }
+
+        body.dark-mode .apexcharts-canvas .apexcharts-menu-item {
+          color: #e0e0e0 !important;
+        }
+
+        body.dark-mode .apexcharts-canvas .apexcharts-menu-item:hover {
+          background-color: #333 !important;
+        }
+
+        /* ChartJS Styling */
+        canvas.chartjs-render-monitor {
+          background-color: transparent !important;
+        }
+
+        /* ChartJS Dark Mode Overrides */
+        body.dark-mode .chartjs-render-monitor {
+          filter: brightness(1.05);
+        }
+
+        /* jsVectorMap Styling */
+        .jvm-tooltip {
+          background-color: var(--chart-tooltip-bg);
+          border-color: var(--chart-tooltip-border);
+          color: var(--chart-text-color);
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+          padding: 5px 10px;
+          border-radius: 4px;
+        }
+
+        .jvm-container {
+          background-color: transparent !important;
+        }
+
+        .jvm-series-container .jvm-legend .jvm-legend-title,
+        .jvm-series-container .jvm-legend .jvm-legend-item-name {
+          color: var(--chart-text-color);
+        }
+
+        /* jsVectorMap Dark Mode Overrides */
+        body.dark-mode .jvm-tooltip {
+          background-color: var(--chart-tooltip-bg) !important;
+          border-color: var(--chart-tooltip-border) !important;
+          color: var(--chart-text-color) !important;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode .jvm-container {
+          background-color: transparent !important;
+          filter: brightness(0.9) contrast(1.1);
+        }
+
+        body.dark-mode .jvm-series-container .jvm-legend .jvm-legend-title,
+        body.dark-mode .jvm-series-container .jvm-legend .jvm-legend-item-name {
+          color: var(--chart-text-color) !important;
+        }
+
+        /* Ensure chart containers have proper background in cards */
+        .card .chart {
+          background-color: transparent !important;
+          position: relative;
+          z-index: 1;
+        }
+        /* Stat cards styling */
+        .stat-card {
+          border-radius: 10px;
+          transition: all 0.3s ease;
+          overflow: hidden;
+        }
+
+        .stat-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+
+        .stat-card .inner {
+          z-index: 10;
+          position: relative;
+          color: #ffff;
+        }
+
+        .stat-card .inner h3 {
+          font-size: 2.2rem;
+          font-weight: 700;
+          margin-bottom: 10px;
+          transition: all 0.3s ease;
+        }
+
+        .stat-card:hover .inner h3 {
+          transform: scale(1.05);
+        }
+
+        .stat-card .icon {
+          bottom: 10px;
+          right: 10px;
+          opacity: 0.8;
+          transition: all 0.3s ease;
+          z-index: 1;
+        }
+
+        .stat-card:hover .icon {
+          opacity: 0.4;
+          transform: scale(1.1);
+        }
+
+        .icon-image {
+          width: 65px;
+          height: 65px;
+        }
+
+        .small-box-footer {
+          background: rgba(0, 0, 0, 0.1);
+          text-decoration: none;
+          display: block;
+          text-align: center;
+          color: rgba(255, 255, 255, 0.8);
+          transition: all 0.3s ease;
+        }
+
+        .small-box-footer:hover {
+          background: rgba(0, 0, 0, 0.15);
+          color: #fff !important;
+        }
+
+        .small-box-footer i {
+          margin-left: 5px;
+          transition: transform 0.3s ease;
+        }
+
+        .small-box-footer:hover i {
+          transform: translateX(3px);
+        }
+
+        @media (max-width: 767.98px) {
+          .stat-card .inner h3 {
+            font-size: 1.8rem;
+          }
+
+          .icon-image {
+            width: 50px;
+            height: 50px;
+          }
+        }
+      </style>
+      <!-- Charts Row -->
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+              <h3 class="card-title">Monthly Booking Statistics</h3>
+              <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                  <i class="bi bi-minus"></i>
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="chart">
+                <div id="revenue-chart" style="height: 300px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                  <h3 class="card-title">Latest Bookings</h3>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                      <thead>
+                      <tr>
+                        <th>User</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr>
+                        <td>John Doe</td>
+                        <td>Taxi</td>
+                        <td><span class="badge bg-success">Completed</span></td>
+                      </tr>
+                      <tr>
+                        <td>Sarah Smith</td>
+                        <td>Ride Share</td>
+                        <td><span class="badge bg-warning">Pending</span></td>
+                      </tr>
+                      <tr>
+                        <td>Mike Johnson</td>
+                        <td>Bicycle</td>
+                        <td><span class="badge bg-primary">Active</span></td>
+                      </tr>
+                      <tr>
+                        <td>Lisa Brown</td>
+                        <td>Relocation</td>
+                        <td><span class="badge bg-info">Scheduled</span></td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="card-footer bg-white">
+                  <a href="#" class="text-decoration-none">View all bookings</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                  <h3 class="card-title">Recent Reviews</h3>
+                </div>
+                <div class="card-body p-3">
+                  <div class="d-flex mb-3">
+                    <img src="https://ui-avatars.com/api/?name=John+Doe&background=198754&color=ffffff&size=64" class="rounded-circle me-3" width="40" height="40" alt="User">
+                    <div>
+                      <h6 class="mb-1">John Doe</h6>
+                      <div class="text-warning mb-1">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                      </div>
+                      <p class="mb-0 text-muted small">"Great service, very professional!"</p>
+                    </div>
+                  </div>
+                  <div class="d-flex mb-3">
+                    <img src="https://ui-avatars.com/api/?name=Sarah+Smith&background=ffc107&color=ffffff&size=64" class="rounded-circle me-3" width="40" height="40" alt="User">
+                    <div>
+                      <h6 class="mb-1">Sarah Smith</h6>
+                      <div class="text-warning mb-1">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star"></i>
+                      </div>
+                      <p class="mb-0 text-muted small">"Very satisfied with my ride share experience."</p>
+                    </div>
+                  </div>
+                  <div class="d-flex">
+                    <img src="https://ui-avatars.com/api/?name=Mike+Johnson&background=0dcaf0&color=ffffff&size=64" class="rounded-circle me-3" width="40" height="40" alt="User">
+                    <div>
+                      <h6 class="mb-1">Mike Johnson</h6>
+                      <div class="text-warning mb-1">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-half"></i>
+                      </div>
+                      <p class="mb-0 text-muted small">"The bicycle was in perfect condition."</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer bg-white">
+                  <a href="#" class="text-decoration-none">View all reviews</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+              <h3 class="card-title">Service Distribution</h3>
+            </div>
+            <div class="card-body">
+              <canvas id="pieChart" style="height: 250px;"></canvas>
+            </div>
+          </div>
+
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+              <h3 class="card-title">User Locations</h3>
+            </div>
+            <div class="card-body p-0">
+              <div id="world-map" style="height: 250px;"></div>
+            </div>
+          </div>
+
+          <div class="card shadow-sm">
+            <div class="card-header bg-white">
+              <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="#" class="btn btn-primary"><i class="bi bi-plus-circle me-2"></i> Add New User</a>
+                <a href="#" class="btn btn-warning text-white"><i class="bi bi-taxi-front me-2"></i> Manage Taxi Bookings</a>
+                <a href="#" class="btn btn-success"><i class="bi bi-bicycle me-2"></i> Manage Bicycle Rentals</a>
+                <a href="#" class="btn btn-info"><i class="bi bi-truck me-2"></i> Manage Relocations</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block page_javascripts %}
+  <!-- Add Chart.js for the pie chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Pie Chart
+      if (typeof Chart !== 'undefined' && document.getElementById('pieChart')) {
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+          type: 'pie',
+          data: {
+            labels: ['Ride Sharing', 'Taxi Service', 'Bicycle Rentals', 'Relocation Services'],
+            datasets: [{
+              data: [
+                {{ stats.rideShares }},
+                {{ stats.taxiBookings }},
+                {{ stats.bicycleRentals }},
+                {{ stats.relocationBookings }}
+              ],
+              backgroundColor: ['#0d6efd', '#ffc107', '#198754', '#0dcaf0'],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false
+          }
+        });
+      }
+
+      // Initialize revenue chart (using ApexCharts)
+      if (typeof ApexCharts !== 'undefined' && document.getElementById('revenue-chart')) {
+        const options = {
+          series: [{
+            name: 'Ride Sharing',
+            data: [30, 40, 35, 50, 49, 60, 70, 91, 125, 150, 160, 150]
+          }, {
+            name: 'Taxi Bookings',
+            data: [20, 25, 30, 35, 40, 55, 50, 45, 60, 55, 50, 53]
+          }, {
+            name: 'Bicycle Rentals',
+            data: [10, 15, 20, 25, 30, 45, 50, 55, 50, 45, 38, 44]
+          }, {
+            name: 'Relocations',
+            data: [5, 10, 15, 20, 25, 30, 40, 55, 60, 65, 70, 65]
+          }],
+          chart: {
+            height: 300,
+            type: 'area',
+            toolbar: {
+              show: false
+            }
+          },
+          dataLabels: {
+            enabled: false
+          },
+          stroke: {
+            curve: 'smooth'
+          },
+          xaxis: {
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          },
+          tooltip: {
+            x: {
+              format: 'MM'
+            }
+          }
+        };
+
+        const chart = new ApexCharts(document.getElementById('revenue-chart'), options);
+        chart.render();
+      }
+
+      // Initialize world map
+      if (typeof jsVectorMap !== 'undefined' && document.getElementById('world-map')) {
+        new jsVectorMap({
+          selector: '#world-map',
+          map: 'world',
+          zoomOnScroll: false,
+          zoomButtons: false,
+          markers: [
+            { name: 'Paris', coords: [48.8566, 2.3522] },
+            { name: 'New York', coords: [40.7128, -74.0060] },
+            { name: 'Tokyo', coords: [35.6762, 139.6503] },
+            { name: 'Berlin', coords: [52.5200, 13.4050] },
+            { name: 'London', coords: [51.5074, -0.1278] }
+          ],
+          markerStyle: {
+            initial: {
+              r: 6,
+              fill: '#0d6efd',
+              stroke: '#fff',
+              strokeWidth: 1
+            }
+          }
+        });
+      }
+    });
+  </script>
+{% endblock %}
